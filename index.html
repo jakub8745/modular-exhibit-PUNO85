@@ -102,10 +102,48 @@
 
   <!-- Video asset -->
   <video id="animacja85" crossorigin="anonymous" loop muted playsinline style="display:none;" preload="auto">
-    <source
+    <source id="video-source"
       src="https://ipfs.io/ipfs/bafybeigmokyvn64skdaicma52xeet6n7yutqqhyzjq75nqihkwwlzjuyb4/PUNO85_compressed_480.mp4"
       type="video/mp4" />
   </video>
+
+  <script>
+    // List of gateways to try
+    const gateways = [
+      'https://ipfs.io/ipfs',
+      'https://cloudflare-ipfs.com/ipfs',];
+
+    const videoElement = document.getElementById('animacja85');
+    const videoSource = document.getElementById('video-source');
+
+    // Function to attempt loading video with a different gateway
+    function tryVideoWithDifferentGateways(gateways, currentIndex = 0) {
+      if (currentIndex < gateways.length) {
+        const newSrc = `${gateways[currentIndex]}/${videoSource.src.split('ipfs.io/ipfs/')[1]}`;
+        videoSource.src = newSrc; // Change the source URL to the new gateway
+
+        // Attempt to load the video
+        videoElement.load();
+
+        videoElement.onerror = () => {
+          console.warn(`Failed to load video from ${gateways[currentIndex]}. Trying next gateway...`);
+          tryVideoWithDifferentGateways(gateways, currentIndex + 1);  // Try the next gateway
+        };
+      } else {
+        console.warn('All gateways failed to load the video.');
+      }
+    }
+
+    // Start trying to load the video from different gateways
+    videoElement.onerror = () => {
+      console.warn('Initial video load failed. Trying alternative gateways...');
+      tryVideoWithDifferentGateways(gateways, 0); // Start with the first gateway
+    };
+
+    // Try to load the video normally when the page loads
+    videoElement.load();
+  </script>
+
 
   <!-- Modal popup for images -->
   <div id="modalOverlay" class="modal-overlay hidden">
@@ -114,7 +152,8 @@
       <div class="modal-image-container">
         <!-- Loader GIF -->
         <img id="modalLoader" class="modal-loader"
-          src="https://bafybeihdetw233mokonbvepkkwha6ht4q645gwlxtheege5tbvyqzwkiiq.ipfs.w3s.link/logo_BPA_256px.gif" alt="Loading…" />
+          src="https://bafybeihdetw233mokonbvepkkwha6ht4q645gwlxtheege5tbvyqzwkiiq.ipfs.w3s.link/logo_BPA_256px.gif"
+          alt="Loading…" />
         <!-- The actual image -->
         <img id="modalImage" class="modal-image hidden" src="" alt="modal image" />
       </div>
